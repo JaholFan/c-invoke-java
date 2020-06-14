@@ -21,6 +21,7 @@ int main(int argc,char**argv)
 	jmethodID mid,cid,id_1;
     jstring jstr;
     jobject jobj;
+    jfieldID sexID,ageID;
 	int ret = 0;
     /* 1. create java virtual machine*/
 	ret = create_vm(&jvm,&env);
@@ -71,6 +72,29 @@ int main(int argc,char**argv)
 		goto err;
 	}
     
+    /************examle 3:set java property*********/
+    /*
+     * 1. get filed id
+     * 2. get/set filed
+     */
+    /*eg 1 : set string*/
+    sexID = (*env)->GetFieldID(env, cls, "sex", "Ljava/lang/String;");
+	if (sexID == NULL) {
+		ret = -5;
+		printf("Can't get filed ID:sex\n");
+		goto err;
+	}
+    jstr = (*env)->NewStringUTF(env, "Man");
+    (*env)->SetObjectField(env, jobj, sexID, jstr);
+    /*eg 2 : set int*/
+    ageID = (*env)->GetFieldID(env, cls, "age", "I");
+	if (ageID == NULL) {
+		ret = -6;
+		printf("Can't get filed ID:age\n");
+		goto err;
+	}
+    (*env)->SetIntField(env, jobj, ageID, 26);
+
     /* 4. call method 
      * 4.1 get method
      * 4.2 create parameter
@@ -79,18 +103,19 @@ int main(int argc,char**argv)
 	id_1 = (*env)->GetMethodID(env, cls, "my_print",
 									 "(Ljava/lang/String;)I");
 	if (id_1 == NULL) {
-		ret = -5;
+		ret = -7;
 		printf("Can't get method:my_print\n");
 		goto err;
 	}
     jstr = (*env)->NewStringUTF(env, "Jahol Fan");
 	ret = (*env)->CallIntMethod(env, jobj, id_1, jstr);
     if(ret){
-		ret = -6;
+		ret = -8;
 		printf("Can't call method:my_print\n");
 		goto err;
         
     }
+
 err:
 	(*jvm)->DestroyJavaVM(jvm);
 _return:
